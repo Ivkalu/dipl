@@ -2,10 +2,11 @@
 
 WTFFF!!!
 
+
 ```
 .
 ├── ...
-├── *data
+├── data
 │   ├── model_output
 │   ├── Test_submission
 │   ├── test_y
@@ -17,10 +18,10 @@ WTFFF!!!
 │   │   └── reverb
 │   ├── Metadata_Test.csv
 │   └── Metadata_Train.csv
-├── *models
+├── models
 ├── research
 ├── src
 └── ...
 ```
 
-* denotes to hidden folders
+denotes to hidden folders
