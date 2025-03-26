@@ -1,8 +1,18 @@
 # Masters thesis
 
-WTFFF!!!
+🌱 Setup environment
+```
+python3 -m venv venv
+source venv/bin/activate //linux
+./venv//activate.bat //windows
+pip install -r requirements.txt
+```
+⏳ Download the data
+```
+python src/
+```
 
-
+🧬 Project structure
 ```
 .
 ├── ...

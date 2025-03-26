@@ -138,3 +138,33 @@ huang14knobs
 https://arxiv.org/abs/1704.03809
 
 https://google-research.github.io/seanet/musiclm/examples/
+
+
+## DIFFMOOG: A DIFFERENTIABLE MODULAR SYNTHESIZER FOR SOUND MATCHING
+
+introduces a real modular synthesizer for sound matching
+more complex chains failed systematically (FM modulations)
+novel approach, great possibilities, but fails as for now
+
+## NABLAFX: A FRAMEWORK FOR DIFFERENTIABLE BLACK-BOX AND GRAY-BOX MODELING OF AUDIO EFFECTS
+
+introduces some differentiable audio effects and a great framework for reusing them
+Phase Inversion
+Gain 
+DC Offset
+Lowpass/Highpass (second order)
+Low/High Shelf (second order)
+Peak/Notch
+Parametric EQ 
+Shelving EQ
+Static FIR Filter
+Tanh Nonlinearity 
+Static MLP Nonlinearity 
+Static Rational Nonlinearity
+
+what is FiLM?
+
+https://stackoverflow.com/questions/61132574/can-i-convert-spectrograms-generated-with-librosa-back-to-audio
+
+## REAL-TIME BLACK-BOX MODELLING WITH RECURRENT NEURAL NETWORKS
+
