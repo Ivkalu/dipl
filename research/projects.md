@@ -39,3 +39,6 @@ MNIST
 https://www.zemris.fer.hr/~ssegvic/du/
 boltzmanovi strojevi
 Unet
+
+multi-scale spectral loss–similar to the multi-resolution spectral amplitude distance
+in Wang et al. (2019)–defined as follows
