@@ -30,7 +30,7 @@ wavenet is actually similar to vocoder => trying to make a voice from a voice re
 Better vocoders: HiFi-GAN or Parallel WaveGAN
 
 ## Map music2vec
-
+gi
 self supervized learning
 Kao se spaja na posljednje layere transformera da mu smanji broj parametara idk?
 Is used for:

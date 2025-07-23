@@ -183,9 +183,9 @@ def main():
                 # Write the output to our output file:
                 o.write(effected)
 
-    
     population = [Obj(rand=True).calc_loss("input.wav", "output.wav") for _ in range(MAX_POPULATION)]
 
+    # TODO add randomized data gathering, use dataset from chunk dataset or ...
     it = 0
     while True:
         population.sort()

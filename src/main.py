@@ -15,20 +15,23 @@ import IPython.display as ipd
 
 from models.baselineFCNet import BaselineFCNet
 from train_model import train_model
-from paths import *
 
 from models.lstm import GuitarPedalLSTM
 from models.wavenet import WaveNetModel
-from datasets.distortion import DistortionDataModule
+from datasets.data_module import DataModule
+
 from models.tcn import TCN
+
 
 def main():
 
     print_batch = True
 
-    data_module = DistortionDataModule(
-        chunk_size=1000, 
-        batch_size=4
+    data_module = DataModule(
+        effect_name="simpleDist",
+        batch_size=40,
+        chunk_size=10000, 
+        num_workers=4,
         )
     
     lstm = GuitarPedalLSTM()
@@ -43,9 +46,9 @@ def main():
     tcn = TCN()
     
     train_model(
-        model=lstm, 
+        model=baselineFCNet, 
         data_module=data_module,
-        epochs=5, 
+        epochs=10, 
         lr=0.001, 
         print_batch=print_batch, 
     )

@@ -39,8 +39,17 @@ class ChunkedWavDataset(torch.utils.data.Dataset):
         output_wav = output_wav.reshape(-1, 1)
 
         # If very last chunk is shorter than chunk_size
-        input_wav = self._pad_to_chunk(input_wav)
-        output_wav = self._pad_to_chunk(output_wav)
+        #input_wav = self._pad_to_chunk(input_wav)
+        #output_wav = self._pad_to_chunk(output_wav)
+
+        if input_wav.ndim == 1:
+            input_wav = input_wav.unsqueeze(1)
+        if output_wav.ndim == 1:
+            output_wav = output_wav.unsqueeze(1)
+
+
+        input_wav = self._pad_or_truncate(input_wav)
+        output_wav = self._pad_or_truncate(output_wav)
 
         return input_wav, output_wav
 
@@ -49,3 +58,12 @@ class ChunkedWavDataset(torch.utils.data.Dataset):
             pad = torch.zeros(self.chunk_size - wav.shape[0], wav.shape[1])
             wav = torch.cat([wav, pad], dim=0)
         return wav
+    
+    def _pad_or_truncate(self, wav):
+        if wav.shape[0] < self.chunk_size:
+            pad = torch.zeros(self.chunk_size - wav.shape[0], wav.shape[1])
+            wav = torch.cat([wav, pad], dim=0)
+        elif wav.shape[0] > self.chunk_size:
+            wav = wav[:self.chunk_size]
+        return wav
+

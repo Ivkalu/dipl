@@ -7,34 +7,41 @@ source venv/bin/activate //linux
 ./venv//activate.bat //windows
 pip install -r requirements.txt
 ```
-⏳ Download the data
-```
-python src/
-```
 
 🧬 Project structure
 ```
 .
 ├── ...
-├── data
-│   ├── model_output
-│   ├── Test_submission
-│   ├── test_y
-│   │   ├── distortion
-│   │   └── reverb
-│   ├── Train submission
-│   ├── test_y
-│   │   ├── distortion
-│   │   └── reverb
-│   ├── Metadata_Test.csv
-│   └── Metadata_Train.csv
-├── models
+├── checkpoints
+├── plugins
+├── data 
+│   ├── test
+│   │   ├── x
+│   │   │   ├── guitar
+│   │   │   └── other
+│   │   └── y 
+│   │       ├── guitar
+│   │       │   ├── effect1
+│   │       │   └── ...
+│   │       └── other
+│   │           ├── effect1
+│   │           └── ...
+│   └── train
+│       ├── x
+│       │   ├── guitar
+│       │   └── other
+│       └── y 
+│           ├── guitar
+│           │   ├── effect1
+│           │   └── ...
+│           └── other
+│               ├── effect1
+│               └── ...
+│   
 ├── research
 ├── src
 └── ...
 ```
-
-denotes to hidden folders
 
 
 ## Models
@@ -46,13 +53,13 @@ Pedals:
 
 
 Regular:
-- Baseline
+- Multilayer Perceptron
 - LSTM - RNN
 - Wavenet
-- T4
+- TCN
+- Structured SSM S4
 - Transformer
-- U-net
-- (Mamba)
+- GAN ?
 
 Paramtric based models
 Genetic algorithm:

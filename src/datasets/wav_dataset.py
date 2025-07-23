@@ -19,9 +19,9 @@ class WavDataset(torch.utils.data.Dataset):
         input_wav = input_wav.reshape(-1, 1)
         output_wav = output_wav.reshape(-1, 1)
 
-        if self.max_length is not None:
-            input_wav = self._pad_or_truncate(input_wav)
-            output_wav = self._pad_or_truncate(output_wav)
+        #if self.max_length is not None:
+        #    input_wav = self._pad_or_truncate(input_wav)
+        #    output_wav = self._pad_or_truncate(output_wav)
 
         return input_wav, output_wav
 
