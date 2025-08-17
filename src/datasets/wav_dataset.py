@@ -105,7 +105,7 @@ class FrequencyQueue(Generic[K, V], MutableMapping[K, V]):
 
 
 
-class WavDataset(Dataset):
+class FrequencyQueueDataset(Dataset):
     
 
     def __init__(self, input_dir, target_dir, input_size, max_samples, max_wav_files):
@@ -142,22 +142,26 @@ class WavDataset(Dataset):
             max_len = max(len(in_data), len(out_data)) #max lenth in number of samples
             # in data cant be longer than out data
 
-            if total_length + max_len > max_samples:
+            if max_samples is not None and total_length + max_len > max_samples:
+                self.cum_sum.append(max_samples - 1)
+                self.pairs.append((in_path, out_path))
                 break
 
             total_length += max_len
 
             self.cum_sum.append(total_length)
             self.pairs.append((in_path, out_path))
+
         assert len(self.pairs) > 0
-        print("Length in seconds:", len(self) / 44100)
-        print(f"Total files: {len(self.pairs)}/{max_wav_files}")
+        print(f"Length in seconds: {len(self) / 44100:.2f}, Num samples: {len(self)}")
+        print(f"Total files used in frequency dataset: {len(self.pairs)}\nMaximum files that can be loaded at the same time: {max_wav_files}")
 
     def __len__(self):
         return self.cum_sum[-1] - self.input_size + 1
 
     def __getitem__(self, idx):
         # Find which file the idx corresponds to
+
         file_index_start = bisect_left(self.cum_sum, idx)
         file_index_end = bisect_left(self.cum_sum, idx + self.input_size)
 
@@ -172,14 +176,20 @@ class WavDataset(Dataset):
                 in_data, in_rate = torchaudio.load(in_path) 
                 out_data, out_rate = torchaudio.load(out_path)
 
-                in_data = normalize(in_data)
-                out_data = normalize(out_data)
+                #in_data = normalize(in_data)
+                #out_data = normalize(out_data)
 
-                max_len = max(in_data.shape[0], out_data.shape[0])
+                max_len = max(in_data.shape[1], out_data.shape[1])
                 if in_data.shape[0] < max_len:
-                    in_data = torch.nn.functional.pad(in_data, (0, max_len - in_data.shape[0]))
+                    in_data = torch.nn.functional.pad(in_data, (0, max_len - in_data.shape[1]))
                 if out_data.shape[0] < max_len:
-                    out_data = torch.nn.functional.pad(out_data, (0, max_len - out_data.shape[0]))
+                    out_data = torch.nn.functional.pad(out_data, (0, max_len - out_data.shape[1]))
+
+                max_allowed_len = self.cum_sum[file_idx] - (self.cum_sum[file_idx - 1] if file_idx > 0 else 0)
+                if in_data.shape[1] > max_allowed_len:
+                    in_data = in_data[:, :max_allowed_len]
+                if out_data.shape[1] > max_allowed_len:
+                    out_data = out_data[:, :max_allowed_len]
 
                 self.file_indexes_ready[file_idx] = (in_data, out_data)
 
@@ -187,18 +197,15 @@ class WavDataset(Dataset):
             samples_input_list.append(in_data)
             samples_output_list.append(out_data)
 
-        try:
-            samples_input = torch.cat(samples_input_list, dim=1) # [2, samples]
-            samples_output = torch.cat(samples_output_list, dim=1) # [2, samples]
+        samples_input = torch.cat(samples_input_list, dim=1) # [2, samples]
+        samples_output = torch.cat(samples_output_list, dim=1) # [2, samples]
 
-            offset = self.cum_sum[file_index_start - 1] if file_index_start > 0 else 0
-            local_idx = idx - offset
+        offset = self.cum_sum[file_index_start - 1] if file_index_start > 0 else 0
+        local_idx = idx - offset
 
-            x_window = samples_input[:, local_idx : local_idx + self.input_size]  # shape: [2, input_size]
-            y_value = samples_output[:, local_idx + self.input_size - 1]        # shape: [2]
+        x_window = samples_input[:, local_idx : local_idx + self.input_size]  # shape: [2, input_size]
+        y_value = samples_output[:, local_idx + self.input_size - 1]        # shape: [2]
 
-        except:
-            breakpoint()
         x_tensor = x_window.transpose(0, 1)
         y_tensor = y_value
 
@@ -207,4 +214,56 @@ class WavDataset(Dataset):
 
 
 
+
+class WaveformFileDataset(Dataset):
+    
+    def __init__(self, input_dir, target_dir):
+        self.pairs = []
+
+        input_files = sorted(os.listdir(input_dir))
+        
+        for fname in input_files:
+            # if file is not audio, ignore
+            if not fname.lower().endswith('.wav'):
+              continue
+            # if there is no matching output file, ignore
+            in_path = os.path.join(input_dir, fname)
+            out_path = os.path.join(target_dir, fname)
+            if not os.path.exists(out_path):
+                continue
+
+            # if samplerates don't match, ignore
+            in_rate, in_data = wavfile.read(in_path)
+            out_rate, out_data = wavfile.read(out_path)
+
+            if in_data.ndim != 2 or out_data.ndim != 2:
+                continue
+
+            if in_rate != 44100 or out_rate != 44100:
+                continue
+
+            self.pairs.append((in_path, out_path))
+
+
+    def __len__(self):
+        return len(self.pairs)
+
+    def __getitem__(self, idx):
+        # Find which file the idx corresponds to
+        in_path, out_path = self.pairs[idx]
+        in_data, in_rate = torchaudio.load(in_path) 
+        out_data, out_rate = torchaudio.load(out_path)
+
+        #in_data = normalize(in_data)
+        #out_data = normalize(out_data)
+
+
+        max_len = max(in_data.shape[0], out_data.shape[0])
+        if in_data.shape[0] < max_len:
+            in_data = torch.nn.functional.pad(in_data, (0, max_len - in_data.shape[0]))
+        if out_data.shape[0] < max_len:
+            out_data = torch.nn.functional.pad(out_data, (0, max_len - out_data.shape[0]))
+
+        return in_data, out_data
+    
 
