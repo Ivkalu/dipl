@@ -168,3 +168,127 @@ https://stackoverflow.com/questions/61132574/can-i-convert-spectrograms-generate
 
 ## REAL-TIME BLACK-BOX MODELLING WITH RECURRENT NEURAL NETWORKS
 
+## CREPE
+
+32 epochs
+500  batches
+32 examples (batch size)
+1024 input size (raw audio samples)
+
+dataset sample size: 16384000 = 371 seconds
+
+
+## Diffmoog
+
+trains on nsynth from google which is a dataset of labeled pitches and audio
+fails to converge on complex lfo based synthesis
+
+nsynth was a predecesor to ddsp which tries to convay timbre of an instrument via wavenet autoencoder (ddsp was based on differentiable synthisizer to aproximate)
+
+
+## MusicLM
+
+That is, we use the MuLan embeddings computed from the
+audio as conditioning during training, while we use MuLan
+embeddings computed from the text input during inference.
+
+based on audioLM
+
+MuLan embeddings → MusicLM → discrete tokens → SoundStream decode → mixed waveform
+
+TODO: SoundStream ??
+
+
+
+## AUTOMATIC MULTITRACK MIXING WITH A DIFFERENTIABLE MIXING CONSOLE OF NEURAL AUDIO EFFECTS
+
+uses a proxy to make parametrized eq,compresion,gain effects by training WaveNet-like model
+
+this way controls are differentiable and can be tweaked later with frozen weights
+
+controller network, encoder decoder with context, after that they feed to transformation network
+works on spectrogram-based VGGish model
+
+results:
+very bad subjective results.
+
+## Style Transfer of Audio Effects with Differentiable Signal Processing
+
+has a smart data generation method to create pairs for style transfers
+
+original tracks are fed throught randomly initialized dsp blocks in pairs (one for reference style track and one for target track)
+
+these are then fed as STFT in 2 encoder blocks that change parameter of differentiable audio effects
+they try different method for making differentiable audio effects
+1 Neural Proxy Pre-training (training TCN with FiLM conditioning)
+2 differentiable signal processing (eq and compressor)
+
+results in a decent style transfer (at least based on the numbers alone)
+
+## AUTOMATIC DJ TRANSITIONS WITH DIFFERENTIABLE AUDIO EFFECTS AND GENERATIVE ADVERSARIAL NETWORKS
+
+differentiable eq and gain for tracks, cue points are chosen beforehand for easier mixing, tempo is also detected beforehand
+
+works on generator that first converts audio to spectrograms, then three residual convolutional blocks for encoder with some post processing that are fed as parameters to differentiable track mixing blocks
+
+learns on a lot of dj transition data
+
+performs terrible, not better or worse than rule based and linear models, but significantly worse than human based
+
+
+
+## GLU
+gated linear unit
+GLU(X) = (X * W + b) elementwise_multiplied_by sigmoid(X * V + c)
+
+
+## WAVE-U-NET: A MULTI-SCALE NEURAL NETWORK FOR END-TO-END AUDIO SOURCE SEPARATION 2018
+
+uses wavenet style model but with skip connections to retain phase information
+is trained on audio waveform alone
+
+## SPLEETER 2019
+
+uses similar U net network for singing voice separation, but greater dataset, has state of the art performance in 2019
+
+## Music Source Separation in the Waveform Domain 2021 (Demucs)
+
+uses wavenet like model
+
+6 decoder and encoder layers with linear and lstm layers in the middle
+uses GLU
+major contribution to wave u net because it changed encoder decoder structure
+simmilar in results to D3Net
+
+## Hybrid Spectrogram and Waveform Source Separation 2021
+
+is basically DEMUCS but trained on both spectrograms and pure audio waveform, with different encoders and decoders (6 of them) that concat results in the middle
+
+The original Hybrid Demucs model
+is made of two U-Nets, one in the time domain (with temporal convolutions) and one in the spectrogram domain (with
+convolutions over the frequency axis). Each U-Net is made
+of 5 encoder layers, and 5 decoder layers. After the 5-th encoder layer, both representation have the same shape, and they
+are summed before going into a shared 6-th layer.
+
+
+## HYBRID TRANSFORMERS FOR MUSIC SOURCE SEPARATION 2022
+
+uses architecture based on Hybrid Demucs, which 
+
+Hybrid Transformer Demucs keeps the outermost 4 layers as is from the original architecture, and replaces the 2 innermost layers in the encoder and the decoder, including local attention and bi-LSTM, with a cross-domain Transformer
+Encode
+
+outperforms Hybrid Demucs by 0.45 dB in SDR
+
+## LALAI
+
+uses perseus which is based on transformer architecture, likely Hybrid Demucs
+
+## Stem n jam
+
+transformer + mamba layers, possibly simmilar to hybrid transfomrer demux
+
+
+
+
+

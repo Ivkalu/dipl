@@ -67,7 +67,7 @@ def save_wav(name, data, sample_rate=44100):
 
 # Model klasa
 class ConvLSTMModel(nn.Module):
-    def __init__(self, conv1d_filters, hidden_units):
+    def __init__(self, conv1d_filters = 16, hidden_units = 26):
         super(ConvLSTMModel, self).__init__()
 
         # Conv1D layers (PyTorch uses Conv1d with input shape: [batch, channels, sequence_length])
@@ -90,7 +90,7 @@ class ConvLSTMModel(nn.Module):
         x = self.fc(x)              # [batch_size, channels]
         return x
 
-    def process_audio_file(self, x, y, input_size=100, batch_size=400, device='cpu'):
+    def process_whole_audio_file(self, x, y, input_size=100, batch_size=400, device='cpu'):
         """self.eval()
         #[channels, len])
 

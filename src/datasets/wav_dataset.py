@@ -257,12 +257,11 @@ class WaveformFileDataset(Dataset):
         #in_data = normalize(in_data)
         #out_data = normalize(out_data)
 
-
-        max_len = max(in_data.shape[0], out_data.shape[0])
+        max_len = max(in_data.shape[1], out_data.shape[1])
         if in_data.shape[0] < max_len:
-            in_data = torch.nn.functional.pad(in_data, (0, max_len - in_data.shape[0]))
+            in_data = torch.nn.functional.pad(in_data, (0, max_len - in_data.shape[1]))
         if out_data.shape[0] < max_len:
-            out_data = torch.nn.functional.pad(out_data, (0, max_len - out_data.shape[0]))
+            out_data = torch.nn.functional.pad(out_data, (0, max_len - out_data.shape[1]))
 
         return in_data, out_data
     

@@ -33,7 +33,7 @@ class MambaBlock(nn.Module):
         return x
 
 class ConvMambaModel(nn.Module):
-    def __init__(self, conv1d_filters, hidden_units, state_dim=64):
+    def __init__(self, conv1d_filters = 16, hidden_units = 26, state_dim=64):
         super().__init__()
         self.conv1 = nn.Conv1d(in_channels=2, out_channels=conv1d_filters,
                                kernel_size=12, padding='same')
