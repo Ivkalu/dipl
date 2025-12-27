@@ -43,14 +43,14 @@ class WaveNetBlock(nn.Module):
 
         return res, skip
 
-class WaveNetModel(nn.Module):
+class WaveNet(nn.Module):
     name="wavenet"
 
-    def __init__(self, in_channels=1, res_channels=32, skip_channels=64,
+    def __init__(self, channels=2, res_channels=32, skip_channels=64,
                  num_blocks=3, num_layers=4, kernel_size=2):
         super().__init__()
 
-        self.input_conv = CausalConv1d(in_channels, res_channels, kernel_size=1)
+        self.input_conv = CausalConv1d(channels, res_channels, kernel_size=1)
         
         self.blocks = nn.ModuleList()
         for b in range(num_blocks):
@@ -62,7 +62,7 @@ class WaveNetModel(nn.Module):
 
         self.relu = nn.ReLU()
         self.output_conv1 = nn.Conv1d(skip_channels, skip_channels, 1)
-        self.output_conv2 = nn.Conv1d(skip_channels, in_channels, 1)  # output same shape as input
+        self.output_conv2 = nn.Conv1d(skip_channels, channels, 1)  # output same shape as input
 
     def forward(self, x):
         # x: (B, T, C) → transpose to (B, C, T)
@@ -84,4 +84,5 @@ class WaveNetModel(nn.Module):
         out = self.relu(out)
         out = self.output_conv2(out)
         # output: (B, C, T) → transpose back
-        return out.transpose(1, 2)
+        out = out.transpose(1, 2)
+        return out

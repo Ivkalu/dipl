@@ -1,6 +1,4 @@
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class Chomp1d(nn.Module):
@@ -48,7 +46,7 @@ class TemporalBlock(nn.Module):
 
 
 class TCN(nn.Module):
-    def __init__(self, input_channels=1, output_channels=1, num_channels=[32, 32, 32], kernel_size=3, dropout=0.2):
+    def __init__(self, input_channels=2, output_channels=2, num_channels=[32, 32, 32], kernel_size=3, dropout=0.2):
         super().__init__()
         layers = []
         num_levels = len(num_channels)
@@ -66,4 +64,5 @@ class TCN(nn.Module):
         x = x.transpose(1, 2)  # Now x is [batch, channels, sequence_length]
         out = self.network(x)
         out = self.final(out)
+        out = out.transpose(1, 2)
         return out

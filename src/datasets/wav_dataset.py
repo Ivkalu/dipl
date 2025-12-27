@@ -1,14 +1,7 @@
 import os
-import math
-import argparse
-import numpy as np
 from scipy.io import wavfile
 import torch
-import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
-import torch.optim as optim
-import IPython.display as ipd
-from IPython.display import display, Audio
+from torch.utils.data import Dataset
 from bisect import bisect_left
 import torchaudio
 
@@ -108,10 +101,11 @@ class FrequencyQueue(Generic[K, V], MutableMapping[K, V]):
 class FrequencyQueueDataset(Dataset):
     
 
-    def __init__(self, input_dir, target_dir, input_size, max_samples, max_wav_files):
+    def __init__(self, input_dir, target_dir, input_size, max_samples, max_wav_files, sequence2sequence):
         self.input_size = input_size
         self.pairs = []
         self.cum_sum = []
+        self.sequence2sequence = sequence2sequence
 
         
         self.file_indexes_ready = FrequencyQueue(max_wav_files)
@@ -153,13 +147,18 @@ class FrequencyQueueDataset(Dataset):
             self.pairs.append((in_path, out_path))
 
         assert len(self.pairs) > 0
-        print(f"Length in seconds: {len(self) / 44100:.2f}, Num samples: {len(self)}")
-        print(f"Total files used in frequency dataset: {len(self.pairs)}\nMaximum files that can be loaded at the same time: {max_wav_files}")
+        # print(f"Length in seconds: {len(self) / 44100:.2f}, Num samples: {len(self)}")
+        # print(f"Total files used in frequency dataset: {len(self.pairs)}\nMaximum files that can be loaded at the same time: {max_wav_files}")
 
     def __len__(self):
-        return self.cum_sum[-1] - self.input_size + 1
+        if self.sequence2sequence:
+            return (self.cum_sum[-1] - self.input_size + 1) // self.input_size
+        else:
+            return self.cum_sum[-1] - self.input_size + 1
 
     def __getitem__(self, idx):
+        if self.sequence2sequence:
+            idx *= self.input_size
         # Find which file the idx corresponds to
 
         file_index_start = bisect_left(self.cum_sum, idx)
@@ -204,10 +203,14 @@ class FrequencyQueueDataset(Dataset):
         local_idx = idx - offset
 
         x_window = samples_input[:, local_idx : local_idx + self.input_size]  # shape: [2, input_size]
-        y_value = samples_output[:, local_idx + self.input_size - 1]        # shape: [2]
-
         x_tensor = x_window.transpose(0, 1)
-        y_tensor = y_value
+
+        if self.sequence2sequence:
+            y_value = samples_output[:, local_idx : local_idx + self.input_size]  # shape: [2, input_size] #sequence to sequence
+            y_tensor = y_value.transpose(0, 1) #sequence to sequence
+        else:
+            y_value = samples_output[:, local_idx + self.input_size - 1]        # shape: [2] # sequence to one
+            y_tensor = y_value #sequence to one
 
         return x_tensor, y_tensor
     

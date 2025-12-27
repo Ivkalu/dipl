@@ -2,11 +2,8 @@
 import torch
 from pathlib import Path
 import os
-import pandas as pd
 from datasets.wav_dataset import FrequencyQueueDataset, WaveformFileDataset
-from pedalboard import Pedalboard
 DATASET_PATH="E:\\source\\dipl\\data"
-from torch.utils.data import Dataset
 from typing import Literal
 
 
@@ -17,6 +14,7 @@ class DataModule():
                  input_size: int, 
                  max_wav_files: int,
                  batch_size: int, 
+                 seq2seq: bool,
                  num_workers: int = 4, 
                  guitar_only: bool = True, 
                  ):
@@ -28,6 +26,7 @@ class DataModule():
         self.guitar_only = guitar_only
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.sequence2sequence = seq2seq
 
     def dataset(self, type: Literal["train", "test", "valid"], max_samples: int):
         t = "guitar" if self.guitar_only else "other"
@@ -39,7 +38,8 @@ class DataModule():
             target_dir=y_dir,
             input_size=self.input_size,
             max_samples=max_samples, 
-            max_wav_files=self.max_wav_files
+            max_wav_files=self.max_wav_files,
+            sequence2sequence=self.sequence2sequence
         )
     
     def get_waveform_dataset(self, type: Literal["train", "test", "valid"]):

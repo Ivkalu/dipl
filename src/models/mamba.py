@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 from torch import Tensor
 
@@ -22,7 +21,7 @@ class MambaBlock(nn.Module):
         self.contract = nn.Linear(hidden_dim, hidden_dim)
         self.activation = nn.Tanh()
     
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x: Tensor):
         # x: [batch, seq_len, input_dim]
         x = self.expand(x)                  # [batch, seq_len, hidden_dim]
         x = x.transpose(1, 2)               # [batch, hidden_dim, seq_len]
@@ -32,24 +31,26 @@ class MambaBlock(nn.Module):
         x = self.activation(x)
         return x
 
-class ConvMambaModel(nn.Module):
-    def __init__(self, conv1d_filters = 16, hidden_units = 26, state_dim=64):
+class Mamba(nn.Module):
+    def __init__(self, channels = 2, conv1d_filters = 16, hidden_units = 26, state_dim=64, seq2seq=False):
         super().__init__()
-        self.conv1 = nn.Conv1d(in_channels=2, out_channels=conv1d_filters,
+        self.conv1 = nn.Conv1d(in_channels=channels, out_channels=conv1d_filters,
                                kernel_size=12, padding='same')
         self.conv2 = nn.Conv1d(in_channels=conv1d_filters, out_channels=conv1d_filters,
                                kernel_size=12, padding='same')
         
         self.mamba = MambaBlock(conv1d_filters, hidden_units, state_dim)
-        self.fc = nn.Linear(hidden_units, 2)
+        self.fc = nn.Linear(hidden_units, channels)
+        self.seq2seq = seq2seq
     
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x: Tensor):
         # [batch_size, input_size, channels] -> [batch, channels, input_size]
         x = x.transpose(1, 2)
         x = self.conv1(x)
         x = self.conv2(x)
         x = x.transpose(1, 2)
         x = self.mamba(x)
-        x = x[:, -1, :]  # take last time step
+        if not self.seq2seq:
+            x = x[:, -1, :]  # take last time step
         x = self.fc(x)
         return x
