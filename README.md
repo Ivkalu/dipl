@@ -10,21 +10,19 @@ The goal of this project is to learn the audio transformations introduced by eff
 *   **Long** (equalizer, flanger), < 1s
 *   **Very long** (delay, reverb), > 1s
 
-![Audio Chain](docs/assets/audio-chain.png)
-
 ## Dataset
 
-We used the **Musical Instruments Sound Dataset** by Soumen dra Prasad (KaggleHub).
+I used a modified version of the [Musical Instruments Sound Dataset](https://www.kaggle.com/datasets/soumendraprasad/musical-instruments-sound-dataset) by Soumendra Prasad.
 
-*   **Train set**: 700 recordings of guitar, drums, and violin each, and 528 recordings of piano.
-*   **Test set**: 80 recordings, 20 from each class.
-*   Effects were applied via Spotify’s PedalBoard library.
+Effects were applied via Spotify’s PedalBoard library. I focused on emulating 4 specific effects (2 distortions and 2 reverbs):
+*   **Distortion**: `simpleDist`, `ragingDemon`
+*   **Reverb**: `dragonflyPlateReverb`, `dragonflyRoomReverb`
 
 ![Distribution of file lengths](docs/assets/distribution-of-file-lengths.png)
 
 ## Approaches
 
-We explored two main approaches: **Black Box** and **Gray Box**.
+I explored two main approaches: **Black Box** and **Gray Box**.
 
 ### Black Box
 
@@ -62,7 +60,7 @@ No assumptions are made about the internal structure of guitar pedals.
 
 ### Gray Box
 
-Assumes some internal structure but relies on optimization methods to fill out unknown parameters. We define an individual as a chain of 5 pedals.
+Assumes some internal structure but relies on optimization methods to fill out unknown parameters. I define an individual as a chain of 5 pedals.
 
 1.  **Genetic Algorithm**
     *   **Initialize**: 400 random individuals.
@@ -87,7 +85,19 @@ Assumes some internal structure but relies on optimization methods to fill out u
 
 ```
 .
-├── data/               # Dataset directory (train/test split)
+├── data/
+│   ├── test/
+│   │   ├── x/
+│   │   │   ├── guitar/
+│   │   │   └── other/
+│   │   └── y/
+│   │       ├── guitar/
+│   │       │   ├── dragonflyPlateReverb/
+│   │       │   ├── dragonflyRoomReverb/
+│   │       │   ├── ragingDemon/
+│   │       │   └── simpleDist/
+│   │       └── other/
+│   └── train/          # Same structure as test
 ├── docs/               # Documentation and assets
 │   └── assets/         # Images for README/Thesis
 ├── gen/                # Generated files
